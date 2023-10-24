@@ -110,6 +110,7 @@ public class DivByZeroTransfer extends CFTransfer {
             AnnotationMirror lhs,
             AnnotationMirror rhs) {
         if (equal(lhs, reflect(Bottom.class)) || equal(rhs, reflect(Bottom.class))) {
+            // No point going deeper in this case.
             return bottom();
         }
         switch (operator) {
@@ -129,11 +130,15 @@ public class DivByZeroTransfer extends CFTransfer {
 
     /** Transfer function for arithmetic division */
     private AnnotationMirror divisionTransfer(AnnotationMirror numerator, AnnotationMirror denominator) {
-        if (equal(denominator, zero()) || equal(denominator, top())) {
-            // Denominator is zero or Top (which includes zero).
+        if (equal(denominator, zero())) {
+            // Denominator is zero; canonical divide-by-zero case
             return bottom();
-        } else if (equal(numerator, zero())) {
-            // Numerator is zero, and denominator is non-zero.
+        }
+        if (equal(numerator, top()) || equal(denominator, top())) {
+            return top();
+        }
+        if (equal(numerator, zero())) {
+            // Numerator is zero; the denominator is non-zero here
             return zero();
         }
         return top();
@@ -165,12 +170,15 @@ public class DivByZeroTransfer extends CFTransfer {
             return top();
         }
         if (equal(lhs, zero())) {
+            // lhs is zero; sign of the result is that of the rhs.
             return rhs;
         }
         if (equal(rhs, zero())) {
+            // rhs is zero; sign of the result is that of the lhs.
             return lhs;
         }
         if (equal(lhs, rhs)) {
+            // Either a positive plus a positive or a negative plus a negative.
             return lhs;
         }
         return top();
@@ -183,24 +191,31 @@ public class DivByZeroTransfer extends CFTransfer {
         }
         if (equal(lhs, zero())) {
             if (equal(rhs, neg())) {
+                // Zero minus a negative is positive.
                 return pos();
             }
             if (equal(rhs, zero())) {
+                // Zero minus zero is zero.
                 return zero();
             }
+            // Zero minus a positive is negative.
             return neg();
         }
         if (equal(lhs, neg())) {
             if (equal(rhs, neg())) {
+                // Negative minus a negative is top.
                 return top();
             }
+            // Negative minus zero or a positive is a negative.
             return neg();
         }
         if (equal(lhs, pos())) {
             if (equal(rhs, pos())) {
+                // Positive minus positive is top.
                 return top();
             }
-            return zero();
+            // Positive minus negative or zero is positive.
+            return pos();
         }
         return top();
     }
@@ -212,11 +227,11 @@ public class DivByZeroTransfer extends CFTransfer {
     }
 
     private AnnotationMirror neg() {
-        return reflect(PositiveVal.class);
+        return reflect(NegativeVal.class);
     }
 
     private AnnotationMirror zero() {
-        return reflect(PositiveVal.class);
+        return reflect(ZeroVal.class);
     }
 
     // ========================================================================
