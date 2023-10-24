@@ -71,8 +71,24 @@ public class DivByZeroTransfer extends CFTransfer {
             Comparison operator,
             AnnotationMirror lhs,
             AnnotationMirror rhs) {
-        // TODO
-        return lhs;
+        switch (operator) {
+            case EQ:
+                return glb(lhs, rhs);
+            case NE:
+                break;
+            case LT:
+                break;
+            case LE:
+                break;
+            case GT:
+                break;
+            case GE:
+                break;
+            default:
+                return lhs;
+        }
+        // TODO: implement me
+        return null;
     }
 
     /**
@@ -93,8 +109,114 @@ public class DivByZeroTransfer extends CFTransfer {
             BinaryOperator operator,
             AnnotationMirror lhs,
             AnnotationMirror rhs) {
-        // TODO
+        if (equal(lhs, reflect(Bottom.class)) || equal(rhs, reflect(Bottom.class))) {
+            return bottom();
+        }
+        switch (operator) {
+            case DIVIDE:
+            case MOD:
+                return divisionTransfer(lhs, rhs);
+            case PLUS:
+                return additionTransfer(lhs, rhs);
+            case TIMES:
+                return multiplicationTransfer(lhs, rhs);
+            case MINUS:
+                return subtractionTransfer(lhs, rhs);
+            default:
+                return top();
+        }
+    }
+
+    /** Transfer function for arithmetic division */
+    private AnnotationMirror divisionTransfer(AnnotationMirror numerator, AnnotationMirror denominator) {
+        if (equal(denominator, zero()) || equal(denominator, top())) {
+            // Denominator is zero or Top (which includes zero).
+            return bottom();
+        } else if (equal(numerator, zero())) {
+            // Numerator is zero, and denominator is non-zero.
+            return zero();
+        }
         return top();
+    }
+
+    /** Transfer function for arithmetic multiplication */
+    private AnnotationMirror multiplicationTransfer(AnnotationMirror lhs, AnnotationMirror rhs) {
+        if (equal(lhs, zero()) || equal(rhs, zero())) {
+            // Either the lhs or the rhs is zero.
+            return zero();
+        }
+        if (equal(lhs, top()) || equal(rhs, top())) {
+            return top();
+        }
+        if (equal(lhs, rhs)) {
+            // The signs of the lhs and the rhs are the same.
+            return pos();
+        }
+        if (!equal(lhs, rhs)) {
+            // The signs of the lhs and the rhs are not the same.
+            return neg();
+        }
+        return top();
+    }
+
+    /** Transfer function for arithmetic addition */
+    private AnnotationMirror additionTransfer(AnnotationMirror lhs, AnnotationMirror rhs) {
+        if (equal(lhs, top()) || equal(rhs, top())) {
+            return top();
+        }
+        if (equal(lhs, zero())) {
+            return rhs;
+        }
+        if (equal(rhs, zero())) {
+            return lhs;
+        }
+        if (equal(lhs, rhs)) {
+            return lhs;
+        }
+        return top();
+    }
+
+    /** Transfer function for arithmetic subtraction */
+    private AnnotationMirror subtractionTransfer(AnnotationMirror lhs, AnnotationMirror rhs) {
+        if (equal(lhs, top()) || equal(rhs, top())) {
+            return top();
+        }
+        if (equal(lhs, zero())) {
+            if (equal(rhs, neg())) {
+                return pos();
+            }
+            if (equal(rhs, zero())) {
+                return zero();
+            }
+            return neg();
+        }
+        if (equal(lhs, neg())) {
+            if (equal(rhs, neg())) {
+                return top();
+            }
+            return neg();
+        }
+        if (equal(lhs, pos())) {
+            if (equal(rhs, pos())) {
+                return top();
+            }
+            return zero();
+        }
+        return top();
+    }
+
+    // ========================================================================
+    // Quality-of-life helpers for lattice points
+    private AnnotationMirror pos() {
+        return reflect(PositiveVal.class);
+    }
+
+    private AnnotationMirror neg() {
+        return reflect(PositiveVal.class);
+    }
+
+    private AnnotationMirror zero() {
+        return reflect(PositiveVal.class);
     }
 
     // ========================================================================

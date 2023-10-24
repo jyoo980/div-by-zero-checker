@@ -5,6 +5,6 @@ import org.checkerframework.framework.qual.SubtypeOf;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
-@SubtypeOf({ZeroVal.class, NegativeVal.class, PositiveVal.class})
+@SubtypeOf({Top.class})
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
-public @interface Bottom { }
+public @interface NegativeVal { }
