@@ -35,7 +35,7 @@ class Bar {
     public static void test_arithmetic_expr_in_conditional() {
         int denominator = 0;
         if (denominator == 1 - 1) {
-            // :: error: divide.by.zero.
+            // :: error: divide.by.zero
             int foo = 1 / denominator;
         } else {
             // The Checker should NOT raise an error here.
