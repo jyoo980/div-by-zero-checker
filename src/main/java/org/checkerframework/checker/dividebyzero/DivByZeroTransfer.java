@@ -79,8 +79,8 @@ public class DivByZeroTransfer extends CFTransfer {
                 if (equal(rhs, neg())) {
                     return glb(lhs, pos());
                 }
-                // If the lhs is neither a negative nor positive,
-                // then obviously it must be zero (issue a warning).
+                // If the lhs is neither negative nor positive,
+                // then it must be zero (issue a warning).
                 return bottom();
             case LT:
                 if (equal(rhs, zero())) {
