@@ -1,3 +1,29 @@
+# Notes added by James
+
+The original lattice I had was composed of a Top, Bottom, Zero, and NonZero,
+like so:
+
+      T
+    /   \
+Zero     NonZero
+    \   /
+      ⊥
+
+Using this lattice led to a large number of false positives in the checker,
+and so I modified the lattice like so:
+
+         T
+    /    |    \
+Zero Positive Negative
+     \   |    /
+         ⊥
+
+I initially had NonZero in the lattice as well, but I realized that it was
+of basically no use, as I was using the more precise Positive and Negative
+values in its place.
+
+Additional test cases available in `Bar.java`.
+
 # What is this repository
 
 This repository contains a template for an abstract interpretation implementation
