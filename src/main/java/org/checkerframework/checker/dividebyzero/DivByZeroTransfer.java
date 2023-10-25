@@ -128,7 +128,7 @@ public class DivByZeroTransfer extends CFTransfer {
             BinaryOperator operator,
             AnnotationMirror lhs,
             AnnotationMirror rhs) {
-        if (equal(lhs, reflect(Bottom.class)) || equal(rhs, reflect(Bottom.class))) {
+        if (equal(lhs, bottom()) || equal(rhs, bottom())) {
             // No point going deeper in this case.
             return bottom();
         }
