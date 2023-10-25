@@ -72,23 +72,42 @@ public class DivByZeroTransfer extends CFTransfer {
             AnnotationMirror lhs,
             AnnotationMirror rhs) {
         switch (operator) {
-            case EQ:
-                return glb(lhs, rhs);
             case NE:
-                break;
+                if (equal(rhs, pos())) {
+                    return glb(lhs, neg());
+                }
+                if (equal(rhs, neg())) {
+                    return glb(lhs, pos());
+                }
+                // If the lhs is neither a negative nor positive,
+                // then obviously it must be zero (issue a warning).
+                return bottom();
             case LT:
-                break;
+                if (equal(rhs, zero())) {
+                    return glb(lhs, neg());
+                }
+                return lhs;
             case LE:
-                break;
+                if (equal(rhs, pos())) {
+                    return glb(lhs, pos());
+                }
+                return lhs;
             case GT:
-                break;
+                if (equal(rhs, zero())) {
+                    return glb(lhs, pos());
+                }
+                return lhs;
             case GE:
-                break;
+                if (equal(rhs, neg())) {
+                    return glb(lhs, neg());
+                }
+                return lhs;
+            case EQ:
+                // The glb of two identical points in the lattice is the
+                // point itself. Returning either lhs or rhs is correct here.
             default:
                 return lhs;
         }
-        // TODO: implement me
-        return null;
     }
 
     /**
